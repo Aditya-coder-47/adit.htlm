@@ -224,7 +224,7 @@ function syncText(){
  let d=$("date").value,fd="____";
  if(d){let p=d.split("-");fd=p[2]+"-"+p[1]+"-"+p[0]}
  $("autoText").innerText=
-`मैं, ${$("fullname").value||'____'} , दिनांक ${fd} से Prem Niwas में Room No. ${$("room").value||'____'} में रहने आया/आयी हैं। मेरा वर्तमान मीटर रीडिंग ${$("meter").value||'____'} है, किराया ${$("amount").value||'____'} रूपये प्रति/माह होगा और मेरा वैधता ${$("valid").value||'____'} तय हुआ है।`;
+`मैं, ${$("fullname").value||'____'} , दिनांक ${fd} से Prem Niwas में Room No. ${$("room").value||'____'} में रहने आया/आयी हूँ| मेरा वर्तमान मीटर रीडिंग ${$("meter").value||'____'} है, किराया ${$("amount").value||'____'} रूपये प्रति/माह होगा और मेरा वैधता ${$("valid").value||'____'} तय हुआ है।`;
 }
 
 function pinLookup(pin){
@@ -316,3 +316,4 @@ function makePDF(){
 </script>
 </body>
 </html>
+
