@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prem Niwas – Renter Registration</title>
+
+<style>
+body{font-family:Arial,Helvetica,sans-serif;margin:10px;color:#000}
+.container{
+ width:100%;
+ max-width:900px;
+ margin:auto;
+ border:2px solid #000;
+ padding:10px;
+ position:relative;
+ box-sizing:border-box;
+}
+
+#aadhaarRow img{max-height:190px;display:block}
+
+h1,h2,h3{text-align:center;margin:4px 0;pointer-events:none}
+.small{font-size:11px}
+
+.logo-circle{
+ position:absolute;
+ top:10px;
+ right:10px;
+ width:120px;
+ height:150px;
+ border:1px solid #000;
+ z-index:10;
+}
+.logo-circle img{width:100%;height:100%;object-fit:cover}
+
+.center-title{
+ width:260px;
+ margin:20px auto 10px;
+ padding:6px;
+ border:1px solid #000;
+ font-weight:bold;
+ background:#f2f2f2;
+ text-align:center
+}
+
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.col{flex:1}
+label{font-size:12px;font-weight:bold}
+input,textarea,select{width:100%;padding:4px;font-size:12px}
+
+.preview{width:100%;height:100%;object-fit:cover}
+canvas.sign{
+ border:1px solid #000;
+ height:80px;
+ width:100%;
+ touch-action:none;
+}
+
+.clear-btn{font-size:11px;margin-top:3px}
+.actions{text-align:center}
+
+.hide-pdf{display:none!important}
+
+@media (max-width:600px){
+ .logo-circle{position:static;margin:10px auto}
+}
+
+@media print{
+ body{margin:0}
+ .container{max-width:100%;padding:12px;margin:0}
+ .logo-circle{top:15px;right:15px}
+ .logo-circle input,.actions,button,input[type=file]{display:none!important}
+ h1{margin-top:20px;font-size:20px}
+ h2{font-size:16px}
+ h3{font-size:14px;margin-bottom:6px}
+ .center-title,.row,#aadhaarRow,canvas{page-break-inside:avoid}
+ canvas.sign{height:70px}
+}
+
+@media (min-width:601px){
+ .container{padding-right:160px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="logo-circle">
+ <img id="pp">
+ <input type="file" onchange="preview(this,'pp')">
+</div>
+
+<h1>🏠Welcome to Prem Niwas</h1>
+<h2>Renter Registration Form</h2>
+<h3>व्यवहार वह सीढ़ी है जिससे आप मन में भी उतर सकते हैं और मन से भी।</h3>
+<h3>जय श्री राम 🙏</h3>
+
+<p class="small" style="border-bottom:2px solid #000;"><b>Official Document</b></p>
+
+<div class="center-title">Personal Details</div>
+
+<div class="row">
+ <div class="col"><label>Full Name *</label><input id="fullname" oninput="onlyAlpha(this);syncText()"></div>
+ <div class="col"><label>Father’s Name *</label><input oninput="onlyAlpha(this)"></div>
+</div>
+
+<div class="row">
+ <div class="col"><label>Mother’s Name *</label><input oninput="onlyAlpha(this)"></div>
+ <div class="col"><label>Date</label><input type="date" id="date" oninput="syncText()"></div>
+</div>
+
+<div class="row">
+ <div class="col"><label>Mobile Number *</label><input maxlength="10" oninput="onlyNumber(this)"></div>
+ <div class="col"><label>Alt Mobile Number</label><input maxlength="10" oninput="onlyNumber(this)"></div>
+</div>
+
+<div class="center-title">Address Details</div>
+
+<div class="row">
+ <div class="col"><label>Full Address</label><textarea></textarea></div>
+</div>
+
+<div class="row">
+ <div class="col"><label>Pin Code</label>
+  <input maxlength="6" id="pincode" oninput="onlyNumber(this);pinLookup(this.value)">
+ </div>
+ <div class="col"><label>Block</label><input></div>
+ <div class="col"><label>State</label><input id="state"></div>
+ <div class="col"><label>District</label><input id="district"></div>
+</div>
+
+<div class="row">
+ <div class="col"><label>City</label><input></div>
+ <div class="col"><label>Police Station</label><input></div>
+ <div class="col">
+  <label>Post Office</label>
+  <select id="postoffice" onchange="manualPostOffice(this)">
+   <option value="">-- Select Post Office --</option>
+  </select>
+ </div>
+</div>
+
+<div class="center-title">Identity Proof</div>
+
+<div class="row" id="aadhaarRow">
+ <div class="col">
+  <label>Aadhaar Front</label>
+  <input type="file" onchange="preview(this,'af')">
+  <img id="af" class="preview">
+ </div>
+ <div class="col">
+  <label>Aadhaar Back</label>
+  <input type="file" onchange="preview(this,'ab')">
+  <img id="ab" class="preview">
+ </div>
+</div>
+
+<div class="row">
+ <div class="col"><label>Aadhaar Number</label>
+  <input maxlength="12" oninput="onlyNumber(this)">
+ </div>
+</div>
+
+<div class="center-title" style="margin-top:30px;">Room Details</div>
+
+<div class="row">
+ <div class="col"><label>Allot Room No</label><input id="room" oninput="syncText()"></div>
+ <div class="col"><label>Meter Reading</label><input id="meter" oninput="syncText()"></div>
+ <div class="col"><label>Advance</label><input></div>
+ <div class="col"><label>Validity</label><input id="valid" oninput="syncText()"></div>
+ <div class="col"><label>Amount</label><input id="amount" oninput="syncText()"></div>
+</div>
+
+<p class="small"><b id="autoText" style="font-size:13.5px;"></b></p>
+
+<div class="center-title">Rule & Condition</div>
+
+<p class="small"><b style="font-size:12.5px;">
+• बिजली का बिल अलग से लगेगा|<br>
+• प्रत्येक वर्ष किराया में 5% की वृद्धि होगी|<br>
+• किराया 1 से 10 के बीच देना होगा|<br>
+• रात 10 बजे के बाद शांति बनाए रखना होगा|<br>
+• प्रवेश द्वार 10 PM पर बंद होगा|<br>
+• किरायेदार कमरे को साफ़ रखने और किसी भी मेंटेनेंस की समस्या की जानकारी तुरंत मकान मालिक को देने के लिए सहमत है।<br>
+• जो Advance लिया जाता है वो security money के रुप मे लिया जाता है|इसका इस्तेमाल नुकसान, बकाया किराया के रूप मे होगा|<br>
+</b></p>
+
+<div class="row">
+ <div class="col">
+  <label>Owner Signature</label>
+  <canvas id="os" class="sign" data-sign></canvas>
+  <button class="clear-btn" onclick="clearSign('os')">Clear</button>
+ </div>
+ <div class="col">
+  <label>Renter Signature</label>
+  <canvas id="rs" class="sign" data-sign></canvas>
+  <button class="clear-btn" onclick="clearSign('rs')">Clear</button>
+ </div>
+</div>
+
+<div class="actions">
+ <button onclick="location.reload()">Clear</button>
+ <button onclick="makePDF()">PDF</button>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+const $=id=>document.getElementById(id);
+
+function preview(i,id){
+ const r=new FileReader();
+ r.onload=()=>$(id).src=r.result;
+ r.readAsDataURL(i.files[0]);
+}
+
+function onlyAlpha(el){el.value=el.value.replace(/[^a-zA-Z\s]/g,'')}
+function onlyNumber(el){el.value=el.value.replace(/[^0-9]/g,'')}
+
+function syncText(){
+ let d=$("date").value,fd="____";
+ if(d){let p=d.split("-");fd=p[2]+"-"+p[1]+"-"+p[0]}
+ $("autoText").innerText=
+`मैं, ${$("fullname").value||'____'} , दिनांक ${fd} से Prem Niwas में Room No. ${$("room").value||'____'} में रहने आया/आयी हैं। मेरा वर्तमान मीटर रीडिंग ${$("meter").value||'____'} है, किराया ${$("amount").value||'____'} रूपये प्रति/माह होगा और मेरा वैधता ${$("valid").value||'____'} तय हुआ है।`;
+}
+
+function pinLookup(pin){
+ if(pin.length!==6)return;
+ fetch("https://api.postalpincode.in/pincode/"+pin)
+ .then(r=>r.json()).then(d=>{
+  if(d[0].Status!=="Success")return;
+  let po=d[0].PostOffice;
+  $("state").value=po[0].State;
+  $("district").value=po[0].District;
+  $("postoffice").innerHTML='<option value="">-- Select Post Office --</option>';
+  po.forEach(p=>{
+   let o=document.createElement("option");
+   o.value=o.text=p.Name;
+   $("postoffice").appendChild(o);
+  });
+  let m=document.createElement("option");
+  m.value="__manual__";m.text="Other / Manual Entry";
+  $("postoffice").appendChild(m);
+ });
+}
+
+function manualPostOffice(sel){
+ if(sel.value==="__manual__"){
+  let n=prompt("Post Office ka naam likhiye:");
+  if(n){
+   let o=document.createElement("option");
+   o.value=o.text=n;
+   sel.insertBefore(o,sel.lastChild);
+   sel.value=n;
+  }else sel.value="";
+ }
+}
+
+function initSignature(c){
+ const ctx=c.getContext("2d");
+ let draw=false;
+ const r=window.devicePixelRatio||1;
+ c.width=c.offsetWidth*r;
+ c.height=c.offsetHeight*r;
+ ctx.setTransform(r,0,0,r,0,0);
+ ctx.lineWidth=2;ctx.lineCap="round";
+
+ const pos=e=>{
+  const b=c.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return{x:t.clientX-b.left,y:t.clientY-b.top};
+ };
+
+ const s=e=>{e.preventDefault();draw=true;let p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};
+ const m=e=>{if(!draw)return;e.preventDefault();let p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};
+ const e=()=>draw=false;
+
+ c.addEventListener("mousedown",s);
+ c.addEventListener("mousemove",m);
+ c.addEventListener("mouseup",e);
+ c.addEventListener("mouseleave",e);
+ c.addEventListener("touchstart",s,{passive:false});
+ c.addEventListener("touchmove",m,{passive:false});
+ c.addEventListener("touchend",e);
+}
+
+document.querySelectorAll("[data-sign]").forEach(initSignature);
+
+function clearSign(id){
+ const c=$(id);
+ c.getContext("2d").clearRect(0,0,c.width,c.height);
+}
+
+function makePDF(){
+ let name=$("fullname").value.trim();
+ if(!name){alert("Please enter Full Name first");return}
+
+ document.querySelectorAll("button,input[type=file]").forEach(e=>e.classList.add("hide-pdf"));
+
+ let safe=name.replace(/\s+/g,"_");
+ let d=$("date").value,safeDate="NoDate";
+ if(d){let p=d.split("-");safeDate=p[2]+"-"+p[1]+"-"+p[0]}
+
+ html2pdf().set({
+  filename:`Prem_Niwas-${safe}-${safeDate}.pdf`,
+  margin:5,
+  html2canvas:{scale:2,scrollY:0},
+  jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
+  pagebreak:{mode:["avoid-all"]}
+ }).from(document.querySelector(".container")).save()
+ .then(()=>document.querySelectorAll(".hide-pdf").forEach(e=>e.classList.remove("hide-pdf")));
+}
+</script>
+</body>
+</html>
