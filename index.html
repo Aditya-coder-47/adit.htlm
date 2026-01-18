@@ -80,6 +80,113 @@ canvas.sign{
 @media (min-width:601px){
  .container{padding-right:160px}
 }
+/* =========================
+   PDF MODE – DESKTOP FORCE
+   (Mobile CSS ignored in PDF)
+========================= */
+
+.pdf-mode .row{
+ flex-direction:row!important;
+}
+
+.pdf-mode label{
+ font-size:12px!important;
+}
+
+.pdf-mode input,
+.pdf-mode textarea,
+.pdf-mode select{
+ font-size:12px!important;
+ padding:4px!important;
+}
+
+.pdf-mode .center-title{
+ width:260px!important;
+ font-size:14px!important;
+}
+
+.pdf-mode canvas.sign{
+ height:70px!important;
+}
+
+.pdf-mode .actions{
+ display:none!important;
+}
+/* =========================
+   MOBILE FRIENDLY OPTIMIZE
+   (NO LOGIC CHANGES)
+========================= */
+
+@media (max-width:600px){
+
+ body{
+  font-size:14px;
+ }
+
+ .container{
+  padding:10px;
+  border-width:1.5px;
+ }
+
+ /* all rows single column */
+ .row{
+  flex-direction:column;
+  gap:8px;
+ }
+
+ label{
+  font-size:13px;
+ }
+
+ input,
+ textarea,
+ select{
+  font-size:14px;
+  padding:7px;
+ }
+
+ textarea{
+  min-height:70px;
+ }
+
+ /* title center & readable */
+ .center-title{
+  width:100%;
+  font-size:14px;
+ }
+
+ /* photo box */
+ .logo-circle{
+  width:140px;
+  height:170px;
+  margin:0 auto 10px;
+ }
+
+ /* aadhaar images */
+ #aadhaarRow img{
+  max-height:160px;
+ }
+
+ /* signature canvas touch friendly */
+ canvas.sign{
+  height:90px;
+ }
+
+ /* buttons full width */
+ .actions button{
+  width:100%;
+  margin:6px 0;
+  font-size:14px;
+  padding:8px;
+ }
+
+ /* radio buttons spacing */
+ .guardian-ui label{
+  font-size:13px;
+ }
+
+}
+
 </style>
 </head>
 
@@ -100,9 +207,29 @@ canvas.sign{
 
 <div class="center-title">Personal Details</div>
 
+
 <div class="row">
  <div class="col"><label>Full Name *</label><input id="fullname" oninput="onlyAlpha(this);syncText()"></div>
- <div class="col"><label>Father’s Name *</label><input oninput="onlyAlpha(this)"></div>
+<div class="col">
+
+ <div style="display:flex; gap:20px; align-items:center;">
+  <label style="display:flex; align-items:center; gap:4px;">
+   <input type="radio" name="guardian" value="father" checked onchange="changeGuardian()">
+   Father Name
+  </label>
+
+  <label style="display:flex; align-items:center; gap:4px;">
+   <input type="radio" name="guardian" value="husband" onchange="changeGuardian()">
+   Husband Name
+  </label>
+ </div>
+
+ <br>
+
+ <label id="guardianLabel">Father’s Name *</label>
+ <input id="guardianInput" oninput="onlyAlpha(this)">
+
+</div>
 </div>
 
 <div class="row">
@@ -200,9 +327,13 @@ canvas.sign{
 </div>
 
 <div class="actions">
+ <button onclick="saveDraft()">Save Draft</button>
+ <button onclick="loadDraft()">Load Draft</button>
+ <button onclick="changePassword()">Change Password</button>
  <button onclick="location.reload()">Clear</button>
  <button onclick="makePDF()">PDF</button>
 </div>
+
 
 </div>
 
@@ -224,7 +355,7 @@ function syncText(){
  let d=$("date").value,fd="____";
  if(d){let p=d.split("-");fd=p[2]+"-"+p[1]+"-"+p[0]}
  $("autoText").innerText=
-`मैं, ${$("fullname").value||'____'} , दिनांक ${fd} से Prem Niwas में Room No. ${$("room").value||'____'} में रहने आया/आयी हूँ| मेरा वर्तमान मीटर रीडिंग ${$("meter").value||'____'} है, किराया ${$("amount").value||'____'} रूपये प्रति/माह होगा और मेरा वैधता ${$("valid").value||'____'} तय हुआ है।`;
+`मैं, ${$("fullname").value||'____'} , दिनांक ${fd} से Prem Niwas में Room No. ${$("room").value||'____'} में रहने आया/आयी हूँ। मेरा वर्तमान मीटर रीडिंग ${$("meter").value||'____'} है, किराया ${$("amount").value||'____'} रूपये प्रति/माह होगा और मेरा वैधता ${$("valid").value||'____'} तय हुआ है।`;
 }
 
 function pinLookup(pin){
@@ -298,11 +429,18 @@ function makePDF(){
  let name=$("fullname").value.trim();
  if(!name){alert("Please enter Full Name first");return}
 
- document.querySelectorAll("button,input[type=file]").forEach(e=>e.classList.add("hide-pdf"));
+ // 🔒 PDF ke time desktop layout force
+ document.body.classList.add("pdf-mode");
+
+ document.querySelectorAll("button,input[type=file]")
+  .forEach(e=>e.classList.add("hide-pdf"));
 
  let safe=name.replace(/\s+/g,"_");
  let d=$("date").value,safeDate="NoDate";
- if(d){let p=d.split("-");safeDate=p[2]+"-"+p[1]+"-"+p[0]}
+ if(d){
+  let p=d.split("-");
+  safeDate=p[2]+"-"+p[1]+"-"+p[0];
+ }
 
  html2pdf().set({
   filename:`Prem_Niwas-${safe}-${safeDate}.pdf`,
@@ -310,10 +448,117 @@ function makePDF(){
   html2canvas:{scale:2,scrollY:0},
   jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
   pagebreak:{mode:["avoid-all"]}
- }).from(document.querySelector(".container")).save()
- .then(()=>document.querySelectorAll(".hide-pdf").forEach(e=>e.classList.remove("hide-pdf")));
+ })
+ .from(document.querySelector(".container"))
+ .save()
+ .then(()=>{
+   // 🔓 PDF ke baad normal mobile view
+   document.body.classList.remove("pdf-mode");
+   document.querySelectorAll(".hide-pdf")
+    .forEach(e=>e.classList.remove("hide-pdf"));
+    localStorage.removeItem("premniwas_draft");
+
+ });
+}
+
+function changeGuardian(){
+ let v = document.querySelector('input[name="guardian"]:checked').value;
+
+ document.getElementById("guardianLabel").innerText =
+  v === "father" ? "Father’s Name *" : "Husband’s Name *";}
+  function getPassword(){
+ let p = localStorage.getItem("premniwas_pwd");
+ if(!p){
+  p = prompt("Set Owner Password (First Time):");
+  if(!p){
+   alert("Password required");
+   return null;
+  }
+  localStorage.setItem("premniwas_pwd", p);
+ }
+ return p;
+}
+function saveDraft(){
+ let pwd = getPassword();
+ if(!pwd) return;
+
+ let input = prompt("Enter Password to Save Draft:");
+ if(input !== pwd){
+  alert("Wrong Password");
+  return;
+ }
+
+ let data = {};
+
+ document.querySelectorAll("input, textarea, select").forEach(el=>{
+  if(el.type==="file") return;
+
+  if(el.type==="radio"){
+   if(el.checked) data[el.name]=el.value;
+  }
+  else if(el.id){
+   data[el.id]=el.value;
+  }
+ });
+
+ localStorage.setItem("premniwas_draft", JSON.stringify(data));
+ alert("Draft Saved Securely");
+}
+function loadDraft(){
+ let pwd = getPassword();
+ if(!pwd) return;
+
+ let input = prompt("Enter Password to Load Draft:");
+ if(input !== pwd){
+  alert("Wrong Password");
+  return;
+ }
+
+ let raw = localStorage.getItem("premniwas_draft");
+ if(!raw){
+  alert("No Draft Found");
+  return;
+ }
+
+ let data = JSON.parse(raw);
+
+ document.querySelectorAll("input, textarea, select").forEach(el=>{
+  if(el.type==="file") return;
+
+  if(el.type==="radio"){
+   if(data[el.name]===el.value) el.checked=true;
+  }
+  else if(el.id && data[el.id]!==undefined){
+   el.value=data[el.id];
+  }
+ });
+
+ changeGuardian();
+ syncText();
+ alert("Draft Loaded");
+}
+function changePassword(){
+ let old = localStorage.getItem("premniwas_pwd");
+ if(!old){
+  alert("No password set");
+  return;
+ }
+
+ let cur = prompt("Enter Current Password:");
+ if(cur !== old){
+  alert("Wrong Password");
+  return;
+ }
+
+ let np = prompt("Enter New Password:");
+ if(!np){
+  alert("Password cannot be empty");
+  return;
+ }
+
+ localStorage.setItem("premniwas_pwd", np);
+ alert("Password Changed Successfully");
 }
 </script>
 </body>
 </html>
-
